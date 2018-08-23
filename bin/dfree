@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+# Prevent TimeMachine backups to fill up the entire disks
+#
+# Another way to do this would be to use quotas on a directory level if your
+# file system supports this.
+#
+# See
+# https://www.samba.org/samba/docs/current/man-html/smb.conf.5.html#DFREECOMMAND
+# https://github.com/samba-team/samba/pull/64#issuecomment-265512556
+#
+
+# Set this in the environment or here.
+TIMEMACHINE_MAX_VOL_SIZE_GB="${TIMEMACHINE_MAX_VOL_SIZE_GB:-150}"
+
+# First argument is the directory/root of the share
+ROOT="${1:-/mnt/backup-data/timemachine}"
+
+blocksize=1  # use 1 byte blocks instead of 1024 (default) to make script math easier
+max=$((TIMEMACHINE_MAX_VOL_SIZE_GB * 1024*1024*1024))
+used="$(du -s -B1 "$ROOT" | awk '{print $1}')"
+available=$((max - used))
+
+if [ "$available" -lt 0 ] ; then
+    available=0
+fi
+
+# output
+# {total disk space} {available space} {blocksize}
+echo "${max} ${available} ${blocksize}"
