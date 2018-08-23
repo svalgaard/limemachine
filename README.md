@@ -1,2 +1,3 @@
-# limemachine
-A few files useful when setting up a TimeMachine server on Linux
+# Linux tIMEMACHINE
+
+A few files useful when setting up a TimeMachine server on Linux.
