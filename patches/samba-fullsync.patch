@@ -1,3 +1,12 @@
+
+The original version of this patch is from here
+
+   https://github.com/samba-team/samba/pull/64
+
+This patch only advertises FULLSYNC support on the samba server, but
+does actually not implement it. This is sufficient to make it work
+with Time Machine.
+
 diff --git a/docs-xml/manpages/vfs_fruit.8.xml b/docs-xml/manpages/vfs_fruit.8.xml
 index c5ffc828fc3..b0cb9f0cb25 100644
 --- a/docs-xml/manpages/vfs_fruit.8.xml
@@ -166,13 +175,12 @@ index c118e61ccc2..91e8a439b84 100644
 +		AvahiStringList *adisk = NULL;
 +		AvahiStringList *adisk2 = NULL;
 +
- 		DBG_DEBUG("AVAHI_CLIENT_S_RUNNING\n");
- 
+ 		DEBUG(10, ("avahi_client_callback: AVAHI_CLIENT_S_RUNNING\n"));
+
  		state->entry_group = avahi_entry_group_new(
-@@ -94,6 +135,53 @@ static void avahi_client_callback(AvahiClient *c, AvahiClientState status,
+@@ -94,5 +135,52 @@ static void avahi_client_callback(AvahiClient *c, AvahiClientState status,
  			break;
  		}
- 
 +		for (snum = 0; snum < num_services; snum++) {
 +			if (lp_snum_ok(snum) &&
 +			    lp_parm_bool(snum, "fruit", "time machine", false))
@@ -220,9 +228,9 @@ index c118e61ccc2..91e8a439b84 100644
 +			}
 +		}
 +
- 		error = avahi_entry_group_commit(state->entry_group);
- 		if (error != AVAHI_OK) {
- 			DBG_DEBUG("avahi_entry_group_commit failed: %s\n",
+ 		if (avahi_entry_group_commit(state->entry_group) < 0) {
+ 			error = avahi_client_errno(c);
+ 			DEBUG(10, ("avahi_entry_group_commit failed: "
 @@ -103,6 +191,7 @@ static void avahi_client_callback(AvahiClient *c, AvahiClientState status,
  			break;
  		}
