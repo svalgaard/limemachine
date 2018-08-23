@@ -1,3 +1,3 @@
-# Linux tIMEMACHINE
+# Linux Time Machine
 
-A few files useful when setting up a TimeMachine server on Linux.
+A few notes and files useful when setting up a TimeMachine server on Linux.
